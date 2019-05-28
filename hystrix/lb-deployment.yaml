@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: load-balancer
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: load-balancer 
+    spec:
+      containers:
+        - image: shivangi96/load-balancer:latest
+          name: load-balancer
+          ports:
+            - containerPort: 8082
+          command: ["/bin/sh"]
+          args: ["-c","java -jar /load-balancer.jar"]
+

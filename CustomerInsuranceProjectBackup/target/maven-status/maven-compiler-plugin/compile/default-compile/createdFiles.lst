@@ -2,8 +2,8 @@ com/tcs/CustomerInsuranceProject/model/CustomerInfo.class
 com/tcs/CustomerInsuranceProject/CustomerInsuranceProjectApplication.class
 com/tcs/CustomerInsuranceProject/service/InsuranceDetailService.class
 com/tcs/CustomerInsuranceProject/repository/InsuranceDetailRepository.class
-com/tcs/CustomerInsuranceProject/model/CustomerAddress.class
 com/tcs/CustomerInsuranceProject/controller/InsuranceDetailController.class
+com/tcs/CustomerInsuranceProject/model/CustomerAddress.class
 com/tcs/CustomerInsuranceProject/model/LoginCustomer.class
 com/tcs/CustomerInsuranceProject/service/CustomerInsuranceService.class
 com/tcs/CustomerInsuranceProject/repository/CustomerInsuranceRepository.class

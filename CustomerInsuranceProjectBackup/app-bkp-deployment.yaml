@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: customerinsuranceprojectbackup
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: customerinsuranceprojectbackup
+    spec:
+      containers:
+        - image: shivangi96/customerinsuranceprojectbackup:latest
+          name: customerinsuranceprojectbackup
+          ports:
+            - containerPort: 8081
+          command: ["/bin/sh"]
+          args: ["-c","java -jar /app_backup.jar"]
+

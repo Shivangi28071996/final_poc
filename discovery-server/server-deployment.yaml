@@ -1,0 +1,18 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: discovery-server
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: discovery-server
+    spec:
+      containers:
+        - image: shivangi96/server:latest
+          name: discovery-server
+          ports:
+            - containerPort: 8761
+          command: ["/bin/sh"]
+          args: ["-c","java -jar /server.jar"]
