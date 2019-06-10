@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import org.apache.tomcat.util.json.JSONParser;
+import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -32,12 +34,22 @@ public class HystrixApplication {
 	
 	/* CustomerInsuranceController*/
 	
+	@HystrixCommand(fallbackMethod="fallBackLoginCustomer")
 	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
-	@PostMapping("/loginCustomer")
+	@GetMapping("/loginCustomer")
 	public String loginCustomer(@RequestBody Object loginCustomer) {
-		String url="http://customerinsuranceproject/loginCustomer";
-		return template.postForObject(url,loginCustomer, String.class);
+		try {
+			String url="http://customerinsuranceproject/loginCustomer";
+			return template.getForObject(url,String.class,loginCustomer);
+		}catch(Exception e) {
+			System.out.println(e);
+			throw new RuntimeException();
+		}
+	}
 	
+	public String fallBackLoginCustomer(@RequestBody Object loginCustomer) {
+		String url="http://customerinsuranceproject-backup/customer/loginCustomer";
+		return template.postForObject(url,loginCustomer, String.class);
 	}
 	
 	@HystrixCommand(fallbackMethod="fallBackAddCustomerInfo")
@@ -81,7 +93,7 @@ public class HystrixApplication {
 	@PutMapping("/addInsurance/{customerId}")
 	public String addInsuranceToCustomer(@PathVariable("customerId") String customerId,@RequestBody Object insurance ) {
 		try {
-			String url="http://customerinsuranceproject/addInsurance/{customerId}";
+			String url="http://customerinsuranceproject/customer/addInsurance/{customerId}";
 			template.put(url, insurance, customerId);
 			return "Insurance added";
 		}catch(Exception e) {
@@ -109,7 +121,7 @@ public class HystrixApplication {
 	}
 	
 	public String fallBackUpdatePassword(@PathVariable("customerId") String customerId,@RequestBody Object password) {
-		String url="http://customerinsuranceproject-backup/updatePassword/{customerId}";
+		String url="http://customerinjwtUserDetailssuranceproject-backup/updatePassword/{customerId}";
 		template.put(url, password , customerId);
 		return "updated";
 	}

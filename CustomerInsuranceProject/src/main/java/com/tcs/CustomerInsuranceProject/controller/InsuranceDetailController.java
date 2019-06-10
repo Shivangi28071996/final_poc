@@ -9,12 +9,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.tcs.CustomerInsuranceProject.model.CustomerInfo;
 import com.tcs.CustomerInsuranceProject.model.InsuranceDetail;
 import com.tcs.CustomerInsuranceProject.service.InsuranceDetailService;
 
 @RestController
+@RequestMapping("/admin")
 public class InsuranceDetailController {
 	
 	@Autowired
@@ -40,19 +42,19 @@ public class InsuranceDetailController {
 	
 	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
 	@PutMapping("/updateCustomerDetailByAdministrator/{customerId}")
-	public void updateCustomerDetailByAdministrator(@PathVariable("customerId") String customerId ,@RequestBody CustomerInfo customerInfo) {	
+	public void updateCustomerDetailByAdministrator(@PathVariable("customerId") String customerId,@RequestBody CustomerInfo customerInfo) {	
 		service.updateCustomerDetailByAdministrator(customerId,customerInfo);
 	}
 	
 	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
 	@PutMapping("/activateCustomerAccount/{customerId}")
-	public void activateCustomerAccount(@PathVariable("customerId") String customerId ) {
+	public void activateCustomerAccount(@PathVariable("customerId") String customerId) {
 		service.activateCustomerAccount(customerId);
 	}
 	
 	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
 	@DeleteMapping("/deleteCustomerAccount/{customerId}")
-	public void deleteCustomerAccount(@PathVariable("customerId") String customerId ) {
+	public void deleteCustomerAccount(@PathVariable("customerId") String customerId) {
 		service.deleteCustomerAccount(customerId);
 	}
 	

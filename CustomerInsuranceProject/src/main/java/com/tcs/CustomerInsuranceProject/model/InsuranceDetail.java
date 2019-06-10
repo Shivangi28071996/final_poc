@@ -35,9 +35,6 @@ public class InsuranceDetail {
 	public String getInsuranceId() {
 		return insuranceId;
 	}
-	public void setInsuranceId(String insuranceId) {
-		this.insuranceId = insuranceId;
-	}
 	public String getInsuranceType() {
 		return insuranceType;
 	}
