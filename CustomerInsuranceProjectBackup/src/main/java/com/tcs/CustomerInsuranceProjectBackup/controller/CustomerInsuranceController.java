@@ -1,4 +1,4 @@
-package com.tcs.CustomerInsuranceProject.controller;
+package com.tcs.CustomerInsuranceProjectBackup.controller;
 
 import java.util.List;
 
@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.tcs.CustomerInsuranceProject.model.CustomerInfo;
-import com.tcs.CustomerInsuranceProject.model.CustomerInsurance;
-import com.tcs.CustomerInsuranceProject.model.InsuranceDetail;
-import com.tcs.CustomerInsuranceProject.model.Password;
-import com.tcs.CustomerInsuranceProject.service.CustomerInsuranceService;
+import com.tcs.CustomerInsuranceProjectBackup.model.CustomerInfo;
+import com.tcs.CustomerInsuranceProjectBackup.model.CustomerInsurance;
+import com.tcs.CustomerInsuranceProjectBackup.model.InsuranceDetail;
+import com.tcs.CustomerInsuranceProjectBackup.model.Password;
+import com.tcs.CustomerInsuranceProjectBackup.service.CustomerInsuranceService;
 
 @RestController
 @RequestMapping("/customer")

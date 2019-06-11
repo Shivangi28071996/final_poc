@@ -58,9 +58,9 @@ public class HystrixApplication {
 	@PostMapping("/token")
 	public String token(@RequestBody Object loginCustomer) {
 		try {
+			System.out.println("generating token ....");
 			String url="http://customerinsuranceproject/token";
-			String output= template.postForObject(url,loginCustomer, String.class);
-			return output;
+			return template.postForObject(url,loginCustomer, String.class);
 		}catch(Exception e) {
 			throw new RuntimeException();
 		}	
@@ -142,10 +142,34 @@ public class HystrixApplication {
 		return template.exchange(url, HttpMethod.GET, entity, String.class);
 	}
 	
+	@HystrixCommand(fallbackMethod="fallBackGetInsuranceDetailsById")
+	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
+	@GetMapping("/getInsuranceDetailsById")
+	public Object getInsuranceDetailsById(@RequestHeader("Authorization") String token,@RequestHeader("insuranceId") String insuranceId) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+		    headers.set("Authorization", token);
+		    headers.set("insuranceId", insuranceId);
+		    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+		    String url="http://customerinsuranceproject/customer/getInsuranceDetailsById";
+			return template.exchange(url, HttpMethod.GET, entity, String.class);
+		}catch(Exception e) {
+			throw new RuntimeException();
+		}	
+	}
+	
+	public Object fallBackGetInsuranceDetailsById(@RequestHeader("Authorization") String token,@RequestHeader("insuranceId") String insuranceId) {
+		HttpHeaders headers = new HttpHeaders();
+	    headers.set("Authorization", token);
+	    headers.set("insuranceId", insuranceId);
+	    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+	    String url="http://customerinsuranceproject-backup/customer/getInsuranceDetailsById";
+		return template.exchange(url, HttpMethod.GET, entity, String.class);
+	}
+	
 	@HystrixCommand(fallbackMethod="fallBackAddInsuranceToCustomer")
 	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
-	@PutMapping("/addInsurance")//	@HystrixCommand(fallbackMethod="fallBackDeleteInsuranceDetail")
-
+	@PutMapping("/addInsurance")
 	public String addInsuranceToCustomer(@RequestHeader("Authorization") String token,@RequestBody Object insurance ) {
 		try {
 			HttpHeaders headers = new HttpHeaders();

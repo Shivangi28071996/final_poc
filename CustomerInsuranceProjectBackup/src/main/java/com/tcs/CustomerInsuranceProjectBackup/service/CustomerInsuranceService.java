@@ -1,19 +1,19 @@
-package com.tcs.CustomerInsuranceProject.service;
+package com.tcs.CustomerInsuranceProjectBackup.service;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.tcs.CustomerInsuranceProject.model.CustomerAddress;
-import com.tcs.CustomerInsuranceProject.model.CustomerInfo;
-import com.tcs.CustomerInsuranceProject.model.CustomerInsurance;
-import com.tcs.CustomerInsuranceProject.model.InsuranceDetail;
-import com.tcs.CustomerInsuranceProject.model.LoginCustomer;
-import com.tcs.CustomerInsuranceProject.model.Password;
-import com.tcs.CustomerInsuranceProject.repository.CustomerInsuranceRepository;
-import com.tcs.CustomerInsuranceProject.repository.InsuranceDetailRepository;
-import com.tcs.CustomerInsuranceProject.security.JwtValidator;
+import com.tcs.CustomerInsuranceProjectBackup.model.CustomerAddress;
+import com.tcs.CustomerInsuranceProjectBackup.model.CustomerInfo;
+import com.tcs.CustomerInsuranceProjectBackup.model.CustomerInsurance;
+import com.tcs.CustomerInsuranceProjectBackup.model.InsuranceDetail;
+import com.tcs.CustomerInsuranceProjectBackup.model.LoginCustomer;
+import com.tcs.CustomerInsuranceProjectBackup.model.Password;
+import com.tcs.CustomerInsuranceProjectBackup.repository.CustomerInsuranceRepository;
+import com.tcs.CustomerInsuranceProjectBackup.repository.InsuranceDetailRepository;
+import com.tcs.CustomerInsuranceProjectBackup.security.JwtValidator;
 
 @Service
 public class CustomerInsuranceService {
@@ -126,6 +126,7 @@ public class CustomerInsuranceService {
 
 	public void updatePassword(String token, Password password) {
 		CustomerInfo customerDetail = validateCustomer(token);
+		System.out.println(customerDetail.getEmailId());
 		customerDetail.setPassword(password.getNewPassword());
 	    repository.save(customerDetail);
 	}
