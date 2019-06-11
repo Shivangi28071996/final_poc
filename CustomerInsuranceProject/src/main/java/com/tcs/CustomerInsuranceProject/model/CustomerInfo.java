@@ -67,9 +67,6 @@ public class CustomerInfo {
 	public String getCustomerId() {
 		return customerId;
 	}
-	public void setCustomerId(String customerId) {
-		this.customerId = customerId;
-	}
 	public String getCustomerName() {
 		return customerName;
 	}

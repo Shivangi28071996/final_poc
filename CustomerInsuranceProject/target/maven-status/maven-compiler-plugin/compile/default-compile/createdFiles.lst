@@ -6,8 +6,11 @@ com/tcs/CustomerInsuranceProject/model/CustomerAddress.class
 com/tcs/CustomerInsuranceProject/controller/InsuranceDetailController.class
 com/tcs/CustomerInsuranceProject/model/LoginCustomer.class
 com/tcs/CustomerInsuranceProject/service/CustomerInsuranceService.class
+com/tcs/CustomerInsuranceProject/security/JwtGenerator.class
 com/tcs/CustomerInsuranceProject/repository/CustomerInsuranceRepository.class
 com/tcs/CustomerInsuranceProject/controller/CustomerInsuranceController.class
+com/tcs/CustomerInsuranceProject/security/JwtValidator.class
+com/tcs/CustomerInsuranceProject/controller/TokenController.class
 com/tcs/CustomerInsuranceProject/model/InsuranceDetail.class
 com/tcs/CustomerInsuranceProject/model/CustomerInsurance.class
 com/tcs/CustomerInsuranceProject/model/Password.class

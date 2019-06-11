@@ -14,7 +14,7 @@ import com.tcs.CustomerInsuranceProject.service.CustomerInsuranceService;
 public class TokenController {
 	
 	@Autowired
-	private CustomerInsuranceService service;
+	private CustomerInsuranceService customerService;
 	
 	@Autowired
 	private JwtGenerator jwtGenerator;
@@ -23,13 +23,18 @@ public class TokenController {
 	@PostMapping("/token")
 	public String generate(@RequestBody LoginCustomer loginCustomer) {
 		String token=jwtGenerator.generate(loginCustomer);
-		return service.getCustomer(token);
+		if(loginCustomer.getUsername().equals("admin001")) {
+			if(loginCustomer.getPassword().equals("admin123")) {
+				return token;
+			}			
+		}
+		return customerService.getCustomer(token);
 	}
 	
 	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
 	@PostMapping("/createCustomer")
 	public String addCustomerInfo(@RequestBody CustomerInfo customerInfo) {
-		return service.addCustomerInfo(customerInfo);
+		return customerService.addCustomerInfo(customerInfo);
 	}
 }
 
