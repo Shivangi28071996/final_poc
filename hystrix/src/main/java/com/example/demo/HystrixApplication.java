@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -60,7 +59,8 @@ public class HystrixApplication {
 	public String token(@RequestBody Object loginCustomer) {
 		try {
 			String url="http://customerinsuranceproject/token";
-			return template.postForObject(url,loginCustomer, String.class);
+			String output= template.postForObject(url,loginCustomer, String.class);
+			return output;
 		}catch(Exception e) {
 			throw new RuntimeException();
 		}	
@@ -117,6 +117,29 @@ public class HystrixApplication {
 		String url="http://customerinsuranceproject-backup/customer/updateCustomerDetailByCustomer";
 		template.exchange(url, HttpMethod.PUT, entity, String.class);
 		return "Details updated succesfully";
+	}
+	
+	@HystrixCommand(fallbackMethod="fallBackGetInsuranceDetails")
+	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
+	@GetMapping("/getInsuranceDetails")
+	public ResponseEntity<String> getInsuranceDetails(@RequestHeader("Authorization") String token) {	
+		try {
+			HttpHeaders headers = new HttpHeaders();
+		    headers.set("Authorization", token);
+		    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+		    String url="http://customerinsuranceproject/customer/getInsuranceDetails";
+			return template.exchange(url, HttpMethod.GET, entity, String.class);
+		}catch(Exception e) {
+			throw new RuntimeException();
+		}
+	}
+
+	public ResponseEntity<String> fallBackGetInsuranceDetails(@RequestHeader("Authorization") String token) {	
+		HttpHeaders headers = new HttpHeaders();
+	    headers.set("Authorization", token);
+	    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+	    String url="http://customerinsuranceproject-backup/customer/getInsuranceDetails";
+		return template.exchange(url, HttpMethod.GET, entity, String.class);
 	}
 	
 	@HystrixCommand(fallbackMethod="fallBackAddInsuranceToCustomer")
@@ -202,182 +225,257 @@ public class HystrixApplication {
 	@HystrixCommand(fallbackMethod="fallBackGetAllCustomer")
 	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
 	@GetMapping("/getAllCustomer")
-	public String getAllCustomer() {
+	public ResponseEntity<String> getAllCustomer(@RequestHeader("Authorization") String token) {
 		try {
-			String url="http://customerinsuranceproject/admin/getAllCustomer";
-			return template.getForObject(url, String.class);
+			HttpHeaders headers = new HttpHeaders();
+		    headers.set("Authorization", token);
+		    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+		    String url="http://customerinsuranceproject/admin/getAllCustomer";
+			return template.exchange(url, HttpMethod.GET, entity, String.class);
 		}catch(Exception e) {
 			throw new RuntimeException();
 		}
 	}
 	
-	public String fallBackGetAllCustomer() {
-		String url="http://customerinsuranceproject-backup/admin/getAllCustomer";
-		return template.getForObject(url, String.class);
+	public ResponseEntity<String> fallBackGetAllCustomer(@RequestHeader("Authorization") String token) {
+		HttpHeaders headers = new HttpHeaders();
+	    headers.set("Authorization", token);
+	    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+	    String url="http://customerinsuranceproject-backup/admin/getAllCustomer";
+		return template.exchange(url, HttpMethod.GET, entity, String.class);
 	}
 	
 	@HystrixCommand(fallbackMethod="fallBackGetCustomerDetailById")
 	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
-	@GetMapping("/getCustomerDetailById/{customerId}")
-	public Object getCustomerDetailById(@PathVariable("customerId") String customerId) {
+	@GetMapping("/getCustomerDetailById")
+	public Object getCustomerDetailById(@RequestHeader("Authorization") String token,@RequestHeader("customerId") String customerId) {
 		try {
-			String url="http://customerinsuranceproject/admin/getCustomerDetailById/{customerId}";
-			return template.getForEntity(url, String.class, customerId);
+			HttpHeaders headers = new HttpHeaders();
+		    headers.set("Authorization", token);
+		    headers.set("customerId", customerId);
+		    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+		    String url="http://customerinsuranceproject/admin/getCustomerDetailById";
+			return template.exchange(url, HttpMethod.GET, entity, String.class);
 		}catch(Exception e) {
 			throw new RuntimeException();
 		}
 	}
 	
-	public Object fallBackGetCustomerDetailById(@PathVariable("customerId") String customerId) {
-		String url="http://customerinsuranceproject-backup/admin/getCustomerDetailById/{customerId}";
-		return template.getForEntity(url, String.class, customerId);
+	public Object fallBackGetCustomerDetailById(@RequestHeader("Authorization") String token,@RequestHeader("customerId") String customerId) {
+		HttpHeaders headers = new HttpHeaders();
+	    headers.set("Authorization", token);
+	    headers.set("customerId", customerId);
+	    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+	    String url="http://customerinsuranceproject-backup/admin/getCustomerDetailById";
+		return template.exchange(url, HttpMethod.GET, entity, String.class);
 	}
 
 	@HystrixCommand(fallbackMethod="fallBackUpdateCustomerDetailByAdministrator")
 	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
-	@PutMapping("/updateCustomerDetailByAdministrator/{customerId}")
-	public String updateCustomerDetailByAdministrator(@PathVariable("customerId") String customerId ,@RequestBody Object customerInfo) {	
+	@PutMapping("/updateCustomerDetailByAdministrator")
+	public String updateCustomerDetailByAdministrator(@RequestHeader("Authorization") String token,@RequestHeader("customerId") String customerId,@RequestBody Object customerInfo) {	
 		try {
-			String url="http://customerinsuranceproject/admin/updateCustomerDetailByAdministrator/{customerId}";
-			template.put(url, customerInfo, customerId);
+			HttpHeaders headers = new HttpHeaders();
+		    headers.set("Authorization", token);
+		    headers.set("customerId", customerId);
+		    HttpEntity<Object> entity = new HttpEntity<Object>(customerInfo,headers);
+		    String url="http://customerinsuranceproject/admin/updateCustomerDetailByAdministrator";
+			template.exchange(url, HttpMethod.PUT, entity, String.class);
 			return "Details updated succesfully";
 		}catch(Exception e) {
 			throw new RuntimeException();
 		}
 	}
 	
-	public String fallBackUpdateCustomerDetailByAdministrator(@PathVariable("customerId") String customerId ,@RequestBody Object customerInfo) {	
-		String url="http://customerinsuranceproject-backup/admin/updateCustomerDetailByAdministrator/{customerId}";
-		template.put(url, customerInfo, customerId);
+	public String fallBackUpdateCustomerDetailByAdministrator(@RequestHeader("Authorization") String token,@RequestHeader("customerId") String customerId,@RequestBody Object customerInfo) {	
+		HttpHeaders headers = new HttpHeaders();
+	    headers.set("Authorization", token);
+	    headers.set("customerId", customerId);
+	    HttpEntity<Object> entity = new HttpEntity<Object>(customerInfo,headers);
+	    String url="http://customerinsuranceproject-backup/admin/updateCustomerDetailByAdministrator";
+		template.exchange(url, HttpMethod.PUT, entity, String.class);
 		return "Details updated succesfully";
 	}
 
 	@HystrixCommand(fallbackMethod="fallBackActivateCustomerAccount")
 	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
-	@PutMapping("/activateCustomerAccount/{customerId}")
-	public String activateCustomerAccount(@PathVariable("customerId") String customerId ) {
+	@PutMapping("/activateCustomerAccount")
+	public String activateCustomerAccount(@RequestHeader("Authorization") String token,@RequestHeader("customerId") String customerId) {
 		try {
-			String url="http://customerinsuranceproject/admin/activateCustomerAccount/{customerId}";
-			template.put(url, String.class, customerId);
+			HttpHeaders headers = new HttpHeaders();
+		    headers.set("Authorization", token);
+		    headers.set("customerId", customerId);
+		    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+		    String url="http://customerinsuranceproject/admin/activateCustomerAccount";
+			template.exchange(url, HttpMethod.PUT, entity, String.class);
 			return "status updated";
 		}catch(Exception e) {
 			throw new RuntimeException();
 		}	
 	}
 	
-	public String fallBackActivateCustomerAccount(@PathVariable("customerId") String customerId ) {
-		String url="http://customerinsuranceproject-backup/admin/activateCustomerAccount/{customerId}";
-		template.put(url, String.class, customerId);
+	public String fallBackActivateCustomerAccount(@RequestHeader("Authorization") String token,@RequestHeader("customerId") String customerId) {
+		HttpHeaders headers = new HttpHeaders();
+	    headers.set("Authorization", token);
+	    headers.set("customerId", customerId);
+	    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+	    String url="http://customerinsuranceproject-backup/admin/activateCustomerAccount";
+		template.exchange(url, HttpMethod.PUT, entity, String.class);
 		return "status updated";
 	}
 
 	@HystrixCommand(fallbackMethod="fallBackDeleteCustomerAccount")
 	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
-	@DeleteMapping("/deleteCustomerAccount/{customerId}")
-	public String deleteCustomerAccount(@PathVariable("customerId") String customerId ) {
+	@DeleteMapping("/deleteCustomerAccount")
+	public String deleteCustomerAccount(@RequestHeader("Authorization") String token,@RequestHeader("customerId") String customerId) {
 		try {
-			String url="http://customerinsuranceproject/admin/deleteCustomerAccount/{customerId}";
-			template.delete(url, customerId);
+			HttpHeaders headers = new HttpHeaders();
+		    headers.set("Authorization", token);
+		    headers.set("customerId", customerId);
+		    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+		    String url="http://customerinsuranceproject/admin/deleteCustomerAccount";
+			template.exchange(url, HttpMethod.DELETE, entity, String.class);
 			return "deleted";
 		}catch(Exception e) {
 			throw new RuntimeException();
 		}
 	}
 	
-	public String fallBackDeleteCustomerAccount(@PathVariable("customerId") String customerId ) {
-		String url="http://customerinsuranceproject-backup/admin/deleteCustomerAccount/{customerId}";
-		template.delete(url, customerId);
+	public String fallBackDeleteCustomerAccount(@RequestHeader("Authorization") String token,@RequestHeader("customerId") String customerId) {
+		HttpHeaders headers = new HttpHeaders();
+	    headers.set("Authorization", token);
+	    headers.set("customerId", customerId);
+	    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+	    String url="http://customerinsuranceproject-backup/admin/deleteCustomerAccount";
+		template.exchange(url, HttpMethod.DELETE, entity, String.class);
 		return "deleted";
 	}
 	
 /*Insurance Related Operation*/	
 	
+	@HystrixCommand(fallbackMethod="fallBackCreateNewInsurance")
+	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")	
+	@PostMapping("/createNewInsurance")
+	public ResponseEntity<String> createNewInsurance(@RequestHeader("Authorization") String token,@RequestBody Object insuranceDetail) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+		    headers.set("Authorization", token);
+		    HttpEntity<Object> entity = new HttpEntity<Object>(insuranceDetail,headers);
+		    String url="http://customerinsuranceproject/admin/createNewInsurance";
+			return template.exchange(url, HttpMethod.POST, entity, String.class);
+		}catch(Exception e) {
+			throw new RuntimeException();
+		}
+	}
+	
+	public ResponseEntity<String> fallBackCreateNewInsurance(@RequestHeader("Authorization") String token,@RequestBody Object insuranceDetail) {
+		HttpHeaders headers = new HttpHeaders();
+	    headers.set("Authorization", token);
+	    HttpEntity<Object> entity = new HttpEntity<Object>(insuranceDetail,headers);
+	    String url="http://customerinsuranceproject-backup/admin/createNewInsurance";
+		return template.exchange(url, HttpMethod.POST, entity, String.class);
+	}
+
 	@HystrixCommand(fallbackMethod="fallBackGetAllInsuranceDetails")
 	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
 	@GetMapping("/getAllInsuranceDetails")
-	public String getAllInsuranceDetails() {	
+	public ResponseEntity<String> getAllInsuranceDetails(@RequestHeader("Authorization") String token) {	
 		try {
-			String url="http://customerinsuranceproject/admin/getAllInsuranceDetails";
-			return template.getForObject(url, String.class);
+			HttpHeaders headers = new HttpHeaders();
+		    headers.set("Authorization", token);
+		    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+		    String url="http://customerinsuranceproject/admin/getAllInsuranceDetails";
+			return template.exchange(url, HttpMethod.GET, entity, String.class);
 		}catch(Exception e) {
 			throw new RuntimeException();
 		}
 	}
 
-	public String fallBackGetAllInsuranceDetails() {	
-		String url="http://customerinsuranceproject-backup/admin/getAllInsuranceDetails";
-		return template.getForObject(url, String.class);
+	public ResponseEntity<String> fallBackGetAllInsuranceDetails(@RequestHeader("Authorization") String token) {	
+		HttpHeaders headers = new HttpHeaders();
+	    headers.set("Authorization", token);
+	    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+	    String url="http://customerinsuranceproject-backup/admin/getAllInsuranceDetails";
+		return template.exchange(url, HttpMethod.GET, entity, String.class);
 	}
 	
 	@HystrixCommand(fallbackMethod="fallBackGetInsuranceDetailById")
 	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
-	@GetMapping("/getInsuranceDetailById/{insuranceId}")
-	public Object getInsuranceDetailById(@PathVariable("insuranceId") String insuranceId) {
+	@GetMapping("/getInsuranceDetailById")
+	public Object getInsuranceDetailById(@RequestHeader("Authorization") String token,@RequestHeader("insuranceId") String insuranceId) {
 		try {
-			String url="http://customerinsuranceproject/admin/getInsuranceDetailById/{insuranceId}";
-			return template.getForEntity(url, String.class, insuranceId);
+			HttpHeaders headers = new HttpHeaders();
+		    headers.set("Authorization", token);
+		    headers.set("insuranceId", insuranceId);
+		    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+		    String url="http://customerinsuranceproject/admin/getInsuranceDetailById";
+			return template.exchange(url, HttpMethod.GET, entity, String.class);
 		}catch(Exception e) {
 			throw new RuntimeException();
 		}	
 	}
 	
-	public Object fallBackGetInsuranceDetailById(@PathVariable("insuranceId") String insuranceId) {
-		String url="http://customerinsuranceproject-backup/admin/getInsuranceDetailById/{insuranceId}";
-		return template.getForEntity(url, String.class, insuranceId);
+	public Object fallBackGetInsuranceDetailById(@RequestHeader("Authorization") String token,@RequestHeader("insuranceId") String insuranceId) {
+		HttpHeaders headers = new HttpHeaders();
+	    headers.set("Authorization", token);
+	    headers.set("insuranceId", insuranceId);
+	    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+	    String url="http://customerinsuranceproject-backup/admin/getInsuranceDetailById";
+		return template.exchange(url, HttpMethod.GET, entity, String.class);
 	}
 
-	@HystrixCommand(fallbackMethod="fallBackCreateNewInsurance")
-	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")	
-	@PostMapping("/createNewInsurance")
-	public String createNewInsurance(@RequestBody Object insuranceDetail) {
-		try {
-			String url="http://customerinsuranceproject/admin/createNewInsurance";
-			return template.postForObject(url,insuranceDetail, String.class);
-		}catch(Exception e) {
-			throw new RuntimeException();
-		}
-	}
 	
-	public String fallBackCreateNewInsurance(@RequestBody Object insuranceDetail) {
-		String url="http://customerinsuranceproject-backup/admin/createNewInsurance";
-		return template.postForObject(url,insuranceDetail, String.class);
-	}
-
 	@HystrixCommand(fallbackMethod="fallBackUpdateInsuranceDetail")
 	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
-	@PutMapping("/updateInsuranceDetail/{insuranceId}")
-	public String updateInsuranceDetail(@PathVariable("insuranceId") String insuranceId,@RequestBody Object insuranceDetail) {
+	@PutMapping("/updateInsuranceDetail")
+	public String updateInsuranceDetail(@RequestHeader("Authorization") String token,@RequestHeader("insuranceId") String insuranceId,@RequestBody Object insuranceDetail) {
 		try {
-			String url="http://customerinsuranceproject/admin/updateInsuranceDetail/{insuranceId}";
-			template.put(url, insuranceDetail, insuranceId);
-			return "Insurance updated succesfully";
+			HttpHeaders headers = new HttpHeaders();
+		    headers.set("Authorization", token);
+		    headers.set("insuranceId", insuranceId);
+		    HttpEntity<Object> entity = new HttpEntity<Object>(insuranceDetail,headers);
+		    String url="http://customerinsuranceproject/admin/updateInsuranceDetail";
+			template.exchange(url, HttpMethod.PUT, entity, String.class);
+			return "Details updated successfully";
 		}catch(Exception e) {
 			throw new RuntimeException();
 		}
 	}
 	
-	public String fallBackUpdateInsuranceDetail(@PathVariable("insuranceId") String insuranceId,@RequestBody Object insuranceDetail) {
-		String url="http://customerinsuranceproject-backup/admin/updateInsuranceDetail/{insuranceId}";
-		template.put(url, insuranceDetail, insuranceId);
-		return "Insurance updated succesfully";
+	public String fallBackUpdateInsuranceDetail(@RequestHeader("Authorization") String token,@RequestHeader("insuranceId") String insuranceId,@RequestBody Object insuranceDetail) {
+		HttpHeaders headers = new HttpHeaders();
+	    headers.set("Authorization", token);
+	    headers.set("insuranceId", insuranceId);
+	    HttpEntity<Object> entity = new HttpEntity<Object>(insuranceDetail,headers);
+	    String url="http://customerinsuranceproject-backup/admin/updateInsuranceDetail";
+		template.exchange(url, HttpMethod.PUT, entity, String.class);
+		return "Details updated successfully";
 	}
 	
 	@HystrixCommand(fallbackMethod="fallBackDeleteInsuranceDetail")
 	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
-	@DeleteMapping("/deleteInsuranceDetail/{insuranceId}")
-	public String deleteInsuranceDetail(@PathVariable("insuranceId") String insuranceId ) {
+	@DeleteMapping("/deleteInsuranceDetail")
+	public String deleteInsuranceDetail(@RequestHeader("Authorization") String token,@RequestHeader("insuranceId") String insuranceId ) {
 		try {
-			String url="http://customerinsuranceproject/admin/deleteInsuranceDetail/{insuranceId}";
-			template.delete(url, insuranceId);
+			HttpHeaders headers = new HttpHeaders();
+		    headers.set("Authorization", token);
+		    headers.set("insuranceId", insuranceId);
+		    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+		    String url="http://customerinsuranceproject/admin/deleteInsuranceDetail";
+			template.exchange(url, HttpMethod.DELETE, entity, String.class);
 			return "Insurance Deleted Successfully";
 		}catch(Exception e) {
 			throw new RuntimeException();
 		}
 	}
 	
-	public String fallBackDeleteInsuranceDetail(@PathVariable("insuranceId") String insuranceId ) {
-		String url="http://customerinsuranceproject-backup/admin/deleteInsuranceDetail/{insuranceId}";
-		template.delete(url, insuranceId);
+	public String fallBackDeleteInsuranceDetail(@RequestHeader("Authorization") String token,@RequestHeader("insuranceId") String insuranceId) {
+		HttpHeaders headers = new HttpHeaders();
+	    headers.set("Authorization", token);
+	    headers.set("insuranceId", insuranceId);
+	    HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+	    String url="http://customerinsuranceproject-backup/admin/deleteInsuranceDetail";
+		template.exchange(url, HttpMethod.DELETE, entity, String.class);
 		return "Insurance Deleted Successfully";
 	}
 	

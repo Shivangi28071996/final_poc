@@ -1,6 +1,7 @@
 package com.tcs.CustomerInsuranceProject.service;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.tcs.CustomerInsuranceProject.model.CustomerAddress;
@@ -9,7 +10,6 @@ import com.tcs.CustomerInsuranceProject.model.CustomerInsurance;
 import com.tcs.CustomerInsuranceProject.model.LoginCustomer;
 import com.tcs.CustomerInsuranceProject.model.Password;
 import com.tcs.CustomerInsuranceProject.repository.CustomerInsuranceRepository;
-import com.tcs.CustomerInsuranceProject.security.JwtValidator;
 
 @Service
 public class CustomerInsuranceService {
@@ -20,8 +20,29 @@ public class CustomerInsuranceService {
 	@Autowired
 	private InsuranceDetailService service;
 	
-	@Autowired 
-	private JwtValidator validator;
+	
+	public String loginCustomer(LoginCustomer loginCustomer) {
+		CustomerInfo customerInfo = new CustomerInfo();
+		List<CustomerInfo> customerList=service.getCustomerDetail();
+		for(int i=0;i<customerList.size();i++) {
+			customerInfo = customerList.get(i);
+			if(customerInfo.getEmailId().equals(loginCustomer.getUsername())) {
+				if(customerInfo.getPassword().equals(loginCustomer.getPassword())) {
+					if(customerInfo.getStatus().equals("Active")) {
+						return customerInfo.getCustomerId();
+					}
+					else {
+						return "Deactivate";
+					}
+				}else {
+					return "Not Found";
+				}
+			}else {
+				return "Not Found";
+			}
+		}
+		return "Not Found";
+	}
 	
 	public String addCustomerInfo(CustomerInfo customerInfo) {
 		CustomerInfo customerDetail= new CustomerInfo();
@@ -34,56 +55,13 @@ public class CustomerInsuranceService {
 			}
 		}
 		customerInfo.setStatus("Active");
-		customerInfo.setPassword(customerInfo.getPassword());
 		repository.save(customerInfo);
 		return "Saved";
 	}
 	
-	public String getCustomer(String token) {
-		LoginCustomer loginCustomer = validator.validate(token);
-		List<CustomerInfo> customerList=service.getCustomerDetail();
-		for(int i=0;i<customerList.size();i++) {
-			CustomerInfo customerInfo = customerList.get(i);
-			if(customerInfo.getEmailId().equals(loginCustomer.getUsername())) {
-				if(customerInfo.getPassword().equals(loginCustomer.getPassword())) {
-					if(customerInfo.getStatus().equals("Active")) {
-						repository.save(customerInfo);
-						return token;
-					}
-					else {
-						return "Deactivate";
-					}
-				}
-				else {
-					return "Not Found";
-				}
-			}
-		}
-		return "Not registered";
-	}
-	
-	public CustomerInfo validateCustomer(String token) {
-		String authenticationToken = token.substring(7);
-		LoginCustomer loginCustomer=validator.validate(authenticationToken);
-		List<CustomerInfo> customerList=service.getCustomerDetail();
-		for(int i=0;i<customerList.size();i++) {
-			CustomerInfo customerInfo = customerList.get(i);
-			if(customerInfo.getEmailId().equals(loginCustomer.getUsername())) {
-				if(customerInfo.getPassword().equals(loginCustomer.getPassword())) {
-					return customerInfo;
-				}
-			}
-		}
-		return null;
-	}
-	
-	public CustomerInfo getCustomerById(String token){
-		CustomerInfo customerInfo=validateCustomer(token);
-		return customerInfo;
-	}
-	
-	public void updateCustomerDetailByCustomer(String token, CustomerInfo customerInfo) {
-		CustomerInfo customerDetail = validateCustomer(token);
+	public void updateCustomerDetailByCustomer(String customerId, CustomerInfo customerInfo) {
+		Optional<CustomerInfo> customerDetails = repository.findById(customerId);
+		CustomerInfo customerDetail = customerDetails.get();
 		customerDetail.setAnnualIncome(customerInfo.getAnnualIncome());
 		customerDetail.setCustomerName(customerInfo.getCustomerName());
 		customerDetail.setEmailId(customerInfo.getEmailId());
@@ -98,28 +76,30 @@ public class CustomerInsuranceService {
 		customerAddress.setState(customerInfo.getCustomerAddress().getState());
 		customerAddress.setPinCode(customerInfo.getCustomerAddress().getPinCode());
 		customerDetail.setCustomerAddress(customerAddress);
-		repository.save(customerDetail);	
+		repository.save(customerDetail);
 	}	
 	
-	public void addInsuranceToCustomer(String token, CustomerInsurance insurance) {
-		CustomerInfo customerDetail = validateCustomer(token);
-		List<Object> insuranceDetail=customerDetail.getCustomerInsurance();
+	public void addInsuranceToCustomer(String customerId, CustomerInsurance insurance) {
+		Optional<CustomerInfo> customerDetail = repository.findById(customerId);
+		CustomerInfo customerInfo = customerDetail.get();
+		List<Object> insuranceDetail=customerInfo.getCustomerInsurance();
 		insuranceDetail.add(insurance);
-		customerDetail.setCustomerInsurance(insuranceDetail);
-		repository.save(customerDetail);
+		customerInfo.setCustomerInsurance(insuranceDetail);
+		repository.save(customerInfo);
 	}
+	
+	public void updatePassword(String customerId, Password password) {
+		Optional<CustomerInfo> customerDetail = repository.findById(customerId);
+		CustomerInfo customerInfo = customerDetail.get();
+		customerInfo.setPassword(password.getNewPassword());
+		repository.save(customerInfo);
+	}
+	
 
-	public void updatePassword(String token, Password password) {
-		CustomerInfo customerDetail = validateCustomer(token);
-		System.out.println(customerDetail.getEmailId());
-		customerDetail.setPassword(password.getNewPassword());
-	    repository.save(customerDetail);
+	public void deActivateCustomerAccount(String customerId) {
+		Optional<CustomerInfo> customerDetail = repository.findById(customerId);
+		CustomerInfo customerInfo = customerDetail.get();
+		customerInfo.setStatus("Deactivate");
+		repository.save(customerInfo);
 	}
-	
-	public void deActivateCustomerAccount(String token) {
-		CustomerInfo customerDetail = validateCustomer(token);
-		customerDetail.setStatus("Deactivate");
-		repository.save(customerDetail);
-	}
-	
 }
