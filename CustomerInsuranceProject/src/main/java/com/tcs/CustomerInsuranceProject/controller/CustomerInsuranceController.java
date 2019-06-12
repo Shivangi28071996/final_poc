@@ -33,7 +33,6 @@ public class CustomerInsuranceController{
 	@CrossOrigin(allowedHeaders= "*",allowCredentials="true")
 	@PutMapping("/updateCustomerDetailByCustomer")
 	public void updateCustomerDetailByCustomer(@RequestHeader("Authorization") String token,@RequestBody CustomerInfo customerInfo ) {
-		System.out.println(customerInfo.getEmailId());
 		service.updateCustomerDetailByCustomer(token,customerInfo);
 	}
 	

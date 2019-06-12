@@ -1,5 +1,6 @@
 package com.tcs.CustomerInsuranceProject.service;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,7 +43,8 @@ public class CustomerInsuranceService {
 			}
 		}
 		customerInfo.setStatus("Active");
-		customerInfo.setPassword(customerInfo.getPassword());
+		String encodedString=Base64.getEncoder().encodeToString(customerInfo.getPassword().getBytes());
+		customerInfo.setPassword(encodedString);
 		repository.save(customerInfo);
 		return "Saved";
 	}
@@ -52,8 +54,10 @@ public class CustomerInsuranceService {
 		List<CustomerInfo> customerList=getCustomerDetail();
 		for(int i=0;i<customerList.size();i++) {
 			CustomerInfo customerInfo = customerList.get(i);
+			byte[] decodedBytes=Base64.getDecoder().decode(customerInfo.getPassword());
+			String decodedString = new String(decodedBytes);
 			if(customerInfo.getEmailId().equals(loginCustomer.getUsername())) {
-				if(customerInfo.getPassword().equals(loginCustomer.getPassword())) {
+				if(decodedString.equals(loginCustomer.getPassword())){
 					if(customerInfo.getStatus().equals("Active")) {
 						return token;
 					}
@@ -76,7 +80,10 @@ public class CustomerInsuranceService {
 		for(int i=0;i<customerList.size();i++) {
 			CustomerInfo customerInfo = customerList.get(i);
 			if(customerInfo.getEmailId().equals(loginCustomer.getUsername())) {
-				if(customerInfo.getPassword().equals(loginCustomer.getPassword())) {
+				byte[] decodedBytes=Base64.getDecoder().decode(customerInfo.getPassword());
+				String decodedString = new String(decodedBytes);
+				if(decodedString.equals(loginCustomer.getPassword())){
+					customerInfo.setPassword(decodedString);
 					return customerInfo;
 				}
 			}
@@ -105,6 +112,8 @@ public class CustomerInsuranceService {
 		customerAddress.setState(customerInfo.getCustomerAddress().getState());
 		customerAddress.setPinCode(customerInfo.getCustomerAddress().getPinCode());
 		customerDetail.setCustomerAddress(customerAddress);
+		String encodedString=Base64.getEncoder().encodeToString(customerInfo.getPassword().getBytes());
+		customerDetail.setPassword(encodedString);
 		repository.save(customerDetail);	
 	}	
 	
@@ -121,18 +130,23 @@ public class CustomerInsuranceService {
 		List<Object> insuranceDetail=customerDetail.getCustomerInsurance();
 		insuranceDetail.add(insurance);
 		customerDetail.setCustomerInsurance(insuranceDetail);
+		String encodedString=Base64.getEncoder().encodeToString(customerDetail.getPassword().getBytes());
+		customerDetail.setPassword(encodedString);
 		repository.save(customerDetail);
 	}
 
 	public void updatePassword(String token, Password password) {
 		CustomerInfo customerDetail = validateCustomer(token);
-		customerDetail.setPassword(password.getNewPassword());
+		String encodedString=Base64.getEncoder().encodeToString(password.getNewPassword().getBytes());
+		customerDetail.setPassword(encodedString);
 	    repository.save(customerDetail);
 	}
 	
 	public void deActivateCustomerAccount(String token) {
 		CustomerInfo customerDetail = validateCustomer(token);
 		customerDetail.setStatus("Deactivate");
+		String encodedString=Base64.getEncoder().encodeToString(customerDetail.getPassword().getBytes());
+		customerDetail.setPassword(encodedString);
 		repository.save(customerDetail);
 	}
 
